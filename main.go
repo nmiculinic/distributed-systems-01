@@ -16,4 +16,5 @@ func main() {
 	root := &cobra.Command{
 		Use: "main",
 	}
+	root
 }
