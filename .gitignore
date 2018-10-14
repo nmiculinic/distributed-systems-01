@@ -13,3 +13,4 @@
 vendor
 .vagrant
 playbook.retry
+dist-example
