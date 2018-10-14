@@ -13,7 +13,7 @@ import (
 
 func main() {
 	root := &cobra.Command{
-		Use: "main",
+		Use: "dist-example",
 	}
 	addr := root.PersistentFlags().String("addr", "127.0.0.1:20120", "address to send/listen to")
 
@@ -37,15 +37,9 @@ func main() {
 		defer conn.Close()
 		log.Infoln("Listening on UDP", ServerAddr)
 
-		buf := make([]byte, 1024)
-		t := time.NewTicker(*summaryInterval)
-
 		numbers := make(chan int64)
-		total := 0
-		var minN int64 = math.MaxInt64
-		var maxN int64 = math.MinInt64
-
 		go func() {
+			buf := make([]byte, 1024)
 			for {
 				n, addr, err := conn.ReadFromUDP(buf)
 				if err != nil {
@@ -66,6 +60,10 @@ func main() {
 			}
 		}()
 
+		total := 0
+		var minN int64 = math.MaxInt64
+		var maxN int64 = math.MinInt64
+		t := time.NewTicker(*summaryInterval)
 		for {
 			select {
 			case <-t.C:
