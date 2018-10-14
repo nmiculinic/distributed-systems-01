@@ -3,6 +3,8 @@
 - hosts: all
   become: yes
   tasks:
+    - debug:
+        msg: "System {{ inventory_hostname }} {{ ansible_eth1.ipv4.address }}"
     - name: Install list of packages
       apt:
         name: "{{ packages }}"
@@ -23,3 +25,7 @@
         name: tcconfig
         state: latest
         executable: pip3
+    - copy: 
+        src: "dist-example"
+        dest: "/usr/bin/dist-example"
+        mode: 0755
