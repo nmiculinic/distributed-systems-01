@@ -11,6 +11,28 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func readNumberdFromUDP(conn *net.UDPConn, numbers chan<- int64) {
+	buf := make([]byte, 1024)
+	for {
+		n, addr, err := conn.ReadFromUDP(buf)
+		if err != nil {
+			log.WithError(err).Errorln("cannot read from udp")
+			continue
+		}
+		x, err := strconv.ParseInt(
+			strings.TrimSpace(string(buf[0:n])),
+			10,
+			64,
+		)
+		if err != nil {
+			log.WithError(err).Errorln("Cannot parse int")
+			continue
+		}
+		log.Debugln("Received ", string(buf[0:n]), " from ", addr)
+		numbers <- x
+	}
+}
+
 func main() {
 	root := &cobra.Command{
 		Use: "dist-example",
@@ -38,27 +60,7 @@ func main() {
 		log.Infoln("Listening on UDP", ServerAddr)
 
 		numbers := make(chan int64)
-		go func() {
-			buf := make([]byte, 1024)
-			for {
-				n, addr, err := conn.ReadFromUDP(buf)
-				if err != nil {
-					log.WithError(err).Errorln("cannot read from udp")
-					continue
-				}
-				x, err := strconv.ParseInt(
-					strings.TrimSpace(string(buf[0:n])),
-					10,
-					64,
-				)
-				if err != nil {
-					log.WithError(err).Errorln("Cannot parse int")
-					continue
-				}
-				log.Debugln("Received ", string(buf[0:n]), " from ", addr)
-				numbers <- x
-			}
-		}()
+		go readNumberdFromUDP(conn, numbers)
 
 		total := 0
 		var minN int64 = math.MaxInt64
