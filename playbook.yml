@@ -1,0 +1,25 @@
+# Vagrant boxes use eth1 interface for internal communication
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install list of packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+            - curl
+            - iproute2
+            - python3
+            - netcat
+            - python3-pip
+    - pip:
+        name: pip
+        state: latest
+        executable: pip3
+    - pip:
+        name: tcconfig
+        state: latest
+        executable: pip3
